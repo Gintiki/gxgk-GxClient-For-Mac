@@ -82,7 +82,7 @@
 }
 
 - (IBAction)onWeibo:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://weibo.com/bcker"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://weibo.com/cz5424"]];
     [self.wAbout close];
 }
 

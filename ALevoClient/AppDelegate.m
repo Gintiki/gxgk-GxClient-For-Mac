@@ -40,7 +40,7 @@
 
 - (void)doExit
 {
-    NSLog(@"ALevoClient启动器结束");
+    NSLog(@"莞香客户端启动器结束");
     exit(0);
 }
 

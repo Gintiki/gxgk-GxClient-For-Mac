@@ -528,18 +528,21 @@ init_frames()
 void
 fill_password_md5(u_char *attach_key, u_int id)
 {
-    char *psw_key = malloc(1 + password_length + 16);
+    char salt[]="zte142052";
+    char *psw_key = malloc(1 + password_length +9+ 16);
     char *md5;
     psw_key[0] = id;
+    
     memcpy (psw_key + 1, password, password_length);
-    memcpy (psw_key + 1 + password_length, attach_key, 16);
+    memcpy(psw_key+1+password_length,salt,9);
+    memcpy (psw_key + 1 + password_length+9, attach_key, 16);
     
     if (debug_on){
         printf("@@DEBUG: MD5-Attach-KEY:\n");
-        print_hex ((u_char*)psw_key, 1 + password_length + 16);
+        print_hex ((u_char*)psw_key, 1 + password_length +9+ 16);
     }
     
-    md5 = get_md5_digest(psw_key, 1 + password_length + 16);
+    md5 = get_md5_digest(psw_key, 1 + password_length+9 + 16);
     
     memset (eap_response_md5ch + 14 + 5, id, 1);
     memcpy (eap_response_md5ch + 14 + 10, md5, 16);
