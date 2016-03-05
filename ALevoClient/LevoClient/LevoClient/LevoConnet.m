@@ -11,12 +11,9 @@
 #include <ifaddrs.h>
 #include <net/if_dl.h>
 
-
-
 #import "LevoConnet.h"
 #import "PreferencesModel.h"
 
-#import <pcap.h>
 #import <stdio.h>
 #import <stdlib.h>
 #import <stdint.h>
@@ -47,8 +44,7 @@
 #import <fcntl.h>
 #import <assert.h>
 
-#import "md5.h"
-
+#import <Packet.h>
 
 int bsd_get_mac(const char ifname[], uint8_t eth_addr[]);
 
@@ -63,141 +59,15 @@ int bsd_get_mac(const char ifname[], uint8_t eth_addr[]);
 
 #define LOCKFILE "/var/run/aLevoClient.pid"
 
-#define KEEP_ALIVE_TIME 60
-
 #define LOCKMODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
-
-/* Ethernet header */
-struct sniff_ethernet {
-    u_char  ether_dhost[ETHER_ADDR_LEN];    /* destination host address */
-    u_char  ether_shost[ETHER_ADDR_LEN];    /* source host address */
-    u_short ether_type;                     /* IP? ARP? RARP? etc */
-};
-
-struct sniff_eap_header {
-    u_char eapol_v;
-    u_char eapol_t;
-    u_short eapol_length;
-    u_char eap_t;
-    u_char eap_id;
-    u_short eap_length;
-    u_char eap_op;
-    u_char eap_v_length;
-    u_char eap_info_tailer[100];
-};
-
-struct follow {
-	uint32_t	inBytes;	//进包
-	uint32_t 	outBytes;	//出包
-    struct timeval time ;
-};
-
-enum EAPType {
-    EAPOL_START,
-    EAPOL_LOGOFF,
-    EAP_REQUEST_IDENTITY,
-    EAP_RESPONSE_IDENTITY,
-    EAP_REQUEST_IDENTITY_KEEP_ALIVE,
-    EAP_RESPONSE_IDENTITY_KEEP_ALIVE,
-    EAP_REQUETS_MD5_CHALLENGE,
-    EAP_RESPONSE_MD5_CHALLENGE,
-    EAP_SUCCESS,
-    EAP_FAILURE,
-    ERROR
-};
-
-enum STATE {
-    READY,
-    STARTED,
-    ID_AUTHED,
-    ONLINE
-};
-
-void    send_eap_packet(enum EAPType send_type);
-char*   get_md5_digest(const char* str, size_t len);
-void    action_by_eap_type(enum EAPType pType,
-                           const struct sniff_eap_header *header);
-void    init_frames();
-void    init_info();
-void    init_device();
-int     set_device_new_ip();
-void    fill_password_md5(u_char *attach_key, u_int id);
-int     program_running_check();
-void   keep_alive();
-int     code_convert(char *from_charset, char *to_charset,
-                     char *inbuf, size_t inlen, char *outbuf, size_t outlen);
-void    print_server_info (const u_char *str);
-
-static void signal_interrupted (int signo);
-static void get_packet(u_char *args, const struct pcap_pkthdr *header,
-                       const u_char *packet);
-
-u_char talier_eapol_start[] = {0x00, 0x00, 0x2f, 0xfc, 0x03, 0x00};
-
-//u_char talier_eap_md5_resp[] ={0x00, 0x00, 0x2f, 0xfc, 0x00, 0x03, 0x01, 0x01, 0x00};
-
-//吉珠抓到的版本3.5
-u_char talier_eap_md5_resp[] ={0x00,0x00,0x2f,0xfc,0x00,0x15,0x01,0x01,0x00,0x02,0x10,
-    0xa1,0x3c,0x54,0xd3,0x2c,0x16,0x31,0xb8,0x77,0xe8,0x8e,0x32,0x57,0x61,0x98,0x44};
-
-//吉珠抓到的版本3.1
-u_char talier_eap_md5_resp31[] ={0x00,0x00,0x2f,0xfc,0x00,0x15,0x01,0x01,0x00,0x02,0x10,
-    0xd8,0xda,0x5d,0xed,0x87,0x95,0x6e,0x39,0x45,0x94,0x7c,0x40,0xcd,0xee,0xdf,0xab};
-
-
-/* #####   GLOBLE VAR DEFINITIONS   ######################### */
-/*-----------------------------------------------------------------------------
- *  程序的主控制变量
- *-----------------------------------------------------------------------------*/
-int         lockfile;
-char        errbuf[PCAP_ERRBUF_SIZE];  /* error buffer */
-enum STATE  state = READY;                     /* program state */
-pcap_t      *handle = NULL;			   /* packet capture handle */
-u_char      muticast_mac[] =            /* 802.1x的认证服务器多播地址 */
-{0x01, 0x80, 0xc2, 0x00, 0x00, 0x03};//普通认证
-//{0x01, 0x80, 0xc2, 0x00, 0x00, 0x23};//扩展认证
-
-
-/* #####   GLOBLE VAR DEFINITIONS   ###################
- *-----------------------------------------------------------------------------
- *  用户信息的赋值变量，由init_argument函数初始化
- *-----------------------------------------------------------------------------*/
-int         background = 0;            /* 后台运行标记  */
-char        *dev = NULL;               /* 连接的设备名 */
-char        *username = NULL;
-char        *password = NULL;
-int         exit_flag = 0;
-int         debug_on = 1;
-/* #####   GLOBLE VAR DEFINITIONS   #########################
- *-----------------------------------------------------------------------------
- *  报文相关信息变量，由init_info 、init_device函数初始化。
- *-----------------------------------------------------------------------------*/
-int         username_length;
-int         password_length;
-u_int       local_ip = 0;
-u_char      local_mac[ETHER_ADDR_LEN]; /* MAC地址 */
-char        dev_if_name[64];
-
-/* #####   TYPE DEFINITIONS   ######################### */
-/*-----------------------------------------------------------------------------
- *  报文缓冲区，由init_frame函数初始化。
- *-----------------------------------------------------------------------------*/
-u_char      eapol_start[64];            /* EAPOL START报文 */
-u_char      eapol_logoff[64];           /* EAPOL LogOff报文 */
-u_char      eapol_keepalive[64];
-u_char      eap_response_ident[128]; /* EAP RESPON/IDENTITY报文 */
-u_char      eap_response_md5ch[128]; /* EAP RESPON/MD5 报文 */
-int         eap_response_md5ch_len;
-
-
-//u_int       live_count = 0;             /* KEEP ALIVE 报文的计数值 */
-//pid_t       current_pid = 0;            /* 记录后台进程的pid */
 
 PreferencesModel *config;
 
 void(^ConnetSucessBlock)(void);
 void(^ConnetFailBlock)(void);
 
+//网卡指针
+pcap_t *handle = NULL;
 
 @implementation LevoConnet
 
@@ -210,344 +80,6 @@ IMP_SINGLETON(LevoConnet)
         config=[PreferencesModel sharedInstance];
     }
     return self;
-}
-
-// debug function
-void
-print_hex(const uint8_t *array, int count)
-{
-    int i;
-    for(i = 0; i < count; i++){
-        if ( !(i % 16))
-            printf ("\n");
-        printf("%02x ", array[i]);
-    }
-    printf("\n");
-}
-
-int
-code_convert(char *from_charset, char *to_charset,
-             char *inbuf, size_t inlen, char *outbuf, size_t outlen)
-{
-    iconv_t cd;
-    char **pin = &inbuf;
-    char **pout = &outbuf;
-    
-    cd = iconv_open(to_charset,from_charset);
-    
-    if (cd==0)
-        return -1;
-    memset(outbuf,0,outlen);
-    
-    if (iconv(cd, pin, &inlen, pout, &outlen)==-1)
-        return -1;
-    iconv_close(cd);
-    return 0;
-}
-
-void
-print_server_info (const u_char *str)
-{
-    if (!(str[0] == 0x2f && str[1] == 0xfc))
-        return;
-    
-    char info_str [1024] = {0};
-    int length = str[2];
-    if (code_convert ("gb2312", "utf-8", (char*)str + 3, length, info_str, 200) != 0){
-        fprintf (stderr, "@@Error: Server info convert error.\n");
-        return;
-    }
-    [[PreferencesModel sharedInstance] pushLog:[NSString stringWithUTF8String:info_str]];
-    fprintf (stdout, "&&Server Info: %s\n", info_str);
-}
-
-/*
- * ===  FUNCTION  ======================================================================
- *         Name:  get_md5_digest
- *  Description:  calcuate for md5 digest
- * =====================================================================================
- */
-char*
-get_md5_digest(const char* str, size_t len)
-{
-    static md5_byte_t digest[16];
-	md5_state_t state;
-	md5_init(&state);
-	md5_append(&state, (const md5_byte_t *)str, (int)len);
-	md5_finish(&state, digest);
-    
-    return (char*)digest;
-}
-
-
-enum EAPType
-get_eap_type(const struct sniff_eap_header *eap_header)
-{
-    switch (eap_header->eap_t){
-        case 0x01:
-            if (eap_header->eap_op == 0x01)
-                return EAP_REQUEST_IDENTITY;
-            if (eap_header->eap_op == 0x04)
-                return EAP_REQUETS_MD5_CHALLENGE;
-            break;
-        case 0x03:
-            //    if (eap_header->eap_id == 0x02)
-            return EAP_SUCCESS;
-            break;
-        case 0x04:
-            return EAP_FAILURE;
-    }
-    fprintf (stderr, "&&IMPORTANT: Unknown Package : eap_t:      %02x\n"
-             "                               eap_id: %02x\n"
-             "                               eap_op:     %02x\n",
-             eap_header->eap_t, eap_header->eap_id,
-             eap_header->eap_op);
-    return ERROR;
-}
-
-void
-action_by_eap_type(enum EAPType pType,
-                   const struct sniff_eap_header *header) {
-    //    printf("PackType: %d\n", pType);
-    switch(pType){
-        case EAP_SUCCESS:
-            state = ONLINE;
-//            [[PreferencesModel sharedInstance] pushLog:@"EAP验证成功"];
-            fprintf(stdout, ">>Protocol: EAP_SUCCESS\n");
-            fprintf(stdout, "&&Info: Authorized Access to Network. \n");
-            keep_alive();
-            ConnetSucessBlock();
-            config.connetState=ConnetStateOnline;
-            /* Set alarm to send keep alive packet */
-            break;
-        case EAP_FAILURE:
-            if (state == READY) {
-//                [[PreferencesModel sharedInstance] pushLog:@"..."];
-                fprintf(stdout, ">>Protocol: Init Logoff Signal\n");
-                return;
-            }
-            fprintf(stdout, ">>Protocol: EAP_FAILURE\n");
-            [[PreferencesModel sharedInstance] pushLog:@"EAP验证失败"];
-//            if(state == ONLINE){
-//                fprintf(stdout, "&&Info: SERVER Forced Logoff\n");
-//                [[PreferencesModel sharedInstance] pushLog:@"SERVER Forced Logoff"];
-//            }
-//            if (state == STARTED){
-//                [[PreferencesModel sharedInstance] pushLog:@"用户名错误"];
-//                fprintf(stdout, "&&Info: Invalid Username or Client info mismatch.\n");
-//            }
-//            if (state == ID_AUTHED){
-//                [[PreferencesModel sharedInstance] pushLog:@"密码错误"];
-//                fprintf(stdout, "&&Info: Invalid Password.\n");
-//            }
-            print_server_info (header->eap_info_tailer);
-            state = READY;
-            if (handle) {
-                pcap_breakloop (handle);
-            }
-            break;
-        case EAP_REQUEST_IDENTITY:
-            fprintf(stdout, ">>Protocol: REQUEST EAP-Identity\n");
-            memset (eap_response_ident + 14 + 5, header->eap_id, 1);
-            send_eap_packet(EAP_RESPONSE_IDENTITY);
-            [[PreferencesModel sharedInstance] pushLog:@"发送EAP-Identity..."];
-            break;
-        case EAP_REQUETS_MD5_CHALLENGE:
-            state = ID_AUTHED;
-            fprintf(stdout, ">>Protocol: REQUEST MD5-Challenge(PASSWORD)\n");
-            fill_password_md5((u_char*)header->eap_info_tailer,
-                              header->eap_id);
-            send_eap_packet(EAP_RESPONSE_MD5_CHALLENGE);
-            [[PreferencesModel sharedInstance] pushLog:@"发送MD5-Challenge(PASSWORD)..."];
-            break;
-        default:
-            NSLog(@"未知报文");
-            print_server_info (header->eap_info_tailer);
-            return;
-    }
-}
-
-void
-send_eap_packet(enum EAPType send_type)
-{
-    u_char *frame_data;
-    int     frame_length = 0;
-    switch(send_type){
-        case EAPOL_START:
-            state = STARTED;
-            frame_data= eapol_start;
-            frame_length = 64;
-            fprintf(stdout, ">>Protocol: SEND EAPOL-Start\n");
-            break;
-        case EAPOL_LOGOFF:
-            state = READY;
-            frame_data = eapol_logoff;
-            frame_length = 64;
-            fprintf(stdout, ">>Protocol: SEND EAPOL-Logoff\n");
-            break;
-        case EAP_RESPONSE_IDENTITY:
-            frame_data = eap_response_ident;
-            frame_length = 54 + username_length;
-            fprintf(stdout, ">>Protocol: SEND EAP-Response/Identity\n");
-            break;
-        case EAP_RESPONSE_MD5_CHALLENGE:
-            frame_data = eap_response_md5ch;
-//            frame_length = 40 + username_length + 14;
-            frame_length=eap_response_md5ch_len;
-            fprintf(stdout, ">>Protocol: SEND EAP-Response/Md5-Challenge\n");
-            break;
-        case EAP_RESPONSE_IDENTITY_KEEP_ALIVE:
-            frame_data = eapol_keepalive;
-            frame_length = 64;
-            fprintf(stdout, ">>Protocol: SEND EAPOL Keep Alive\n");
-            break;
-        default:
-            fprintf(stderr,"&&IMPORTANT: Wrong Send Request Type.%02x\n", send_type);
-            return;
-    }
-    if (debug_on){
-        printf ("@@DEBUG: Sent Frame Data:\n");
-        print_hex (frame_data, frame_length);
-    }
-    if (pcap_sendpacket(handle, frame_data, frame_length) != 0)
-    {
-        fprintf(stderr,"&&IMPORTANT: Error Sending the packet: %s\n", pcap_geterr(handle));
-        return;
-    }
-}
-
-/* Callback function for pcap.  */
-void
-get_packet(u_char *args, const struct pcap_pkthdr *header,
-           const u_char *packet)
-{
-	/* declare pointers to packet headers */
-	const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
-    const struct sniff_eap_header *eap_header;
-    
-    ethernet = (struct sniff_ethernet*)(packet);
-    eap_header = (struct sniff_eap_header *)(packet + SIZE_ETHERNET);
-    
-    if (debug_on){
-        printf ("@@DEBUG: Packet Caputre Data:\n");
-        print_hex (packet, 64);
-    }
-    
-    enum EAPType p_type = get_eap_type(eap_header);
-    action_by_eap_type(p_type, eap_header);
-    
-    return;
-}
-
-void
-init_frames()
-{
-    int data_index;
-    
-    /*****  EAPOL Header  *******/
-    u_char eapol_header[SIZE_ETHERNET];
-    data_index = 0;
-    u_short eapol_t = htons (0x888e);
-    memcpy (eapol_header + data_index, muticast_mac, 6); /* dst addr. muticast */
-    data_index += 6;
-    memcpy (eapol_header + data_index, local_mac, 6);    /* src addr. local mac */
-    data_index += 6;
-    memcpy (eapol_header + data_index, &eapol_t, 2);    /*  frame type, 0x888e*/
-    
-    /**** EAPol START ****/
-    u_char start_data[] = {0x01, 0x01, 0x00, 0x00};
-    memset (eapol_start, 0xcc, 64);
-    memcpy (eapol_start, eapol_header, 14);
-    memcpy (eapol_start + 14, start_data, 4);
-    memcpy (eapol_start + 14 + 4, talier_eapol_start, 6);
-    
-    //    print_hex(eapol_start, sizeof(eapol_start));
-    /****EAPol LOGOFF ****/
-    u_char logoff_data[4] = {0x01, 0x02, 0x00, 0x00};
-    memset (eapol_logoff, 0xcc, 64);
-    memcpy (eapol_logoff, eapol_header, 14);
-    memcpy (eapol_logoff + 14, logoff_data, 4);
-    memcpy (eapol_logoff + 14 + 4, talier_eapol_start, 4);
-    
-    //    print_hex(eapol_logoff, sizeof(eapol_logoff));
-    
-    /****EAPol Keep alive ****/
-    u_char keep_data[4] = {0x01, 0xfc, 0x00, 0x0c};
-    memset (eapol_keepalive, 0xcc, 64);
-    memcpy (eapol_keepalive, eapol_header, 14);
-    memcpy (eapol_keepalive + 14, keep_data, 4);
-    memset (eapol_keepalive + 18, 0, 8);
-    memcpy (eapol_keepalive + 26, &local_ip, 4);
-    
-    //    print_hex(eapol_keepalive, sizeof(eapol_keepalive));
-    
-    /* EAP RESPONSE IDENTITY */
-    u_char eap_resp_iden_head[9] = {0x01, 0x00,
-        0x00, 5 + username_length,  /* eapol_length */
-        0x02, 0x00,
-        0x00, 5 + username_length,       /* eap_length */
-        0x01};
-    
-    //    eap_response_ident = malloc (54 + username_length);
-    memset(eap_response_ident, 0xcc, 54 + username_length);
-    
-    data_index = 0;
-    memcpy (eap_response_ident + data_index, eapol_header, 14);
-    data_index += 14;
-    memcpy (eap_response_ident + data_index, eap_resp_iden_head, 9);
-    data_index += 9;
-    memcpy (eap_response_ident + data_index, username, username_length);
-    
-    //    print_hex(eap_response_ident, 54 + username_length);
-    /** EAP RESPONSE MD5 Challenge **/
-    u_char eap_resp_md5_head[10] = {0x01, 0x00,
-        0x00, 6 + 16 + username_length, /* eapol-length */
-        0x02,
-        0x00, /* id to be set */
-        0x00, 6 + 16 + username_length, /* eap-length */
-        0x04, 0x10};
-    //    eap_response_md5ch = malloc (14 + 4 + 6 + 16 + username_length + 14);
-    //    memset(eap_response_md5ch, 0xcc, 14 + 4 + 6 + 16 + username_length + 14);
-    
-    data_index = 0;
-    memcpy (eap_response_md5ch + data_index, eapol_header, 14);
-    data_index += 14;
-    memcpy (eap_response_md5ch + data_index, eap_resp_md5_head, 10);
-    data_index += 26;// 剩余16位在收到REQ/MD5报文后由fill_password_md5填充
-    memcpy (eap_response_md5ch + data_index, username, username_length);
-    data_index += username_length;
-    memcpy (eap_response_md5ch + data_index, &local_ip, 4);
-    data_index += 4;
-    memcpy (eap_response_md5ch + data_index, talier_eap_md5_resp, sizeof(talier_eap_md5_resp)/sizeof(u_char));
-    data_index += sizeof(talier_eap_md5_resp)/sizeof(u_char);    
-    eap_response_md5ch_len=data_index;
-    //    print_hex(eap_response_md5ch, 14 + 4 + 6 + 16 + username_length + 14);
-    
-}
-
-void
-fill_password_md5(u_char *attach_key, u_int id)
-{
-    char salt[]="zte142052";
-    char *psw_key = malloc(1 + password_length +9+ 16);
-    char *md5;
-    psw_key[0] = id;
-    
-    memcpy (psw_key + 1, password, password_length);
-    memcpy(psw_key+1+password_length,salt,9);
-    memcpy (psw_key + 1 + password_length+9, attach_key, 16);
-    
-    if (debug_on){
-        printf("@@DEBUG: MD5-Attach-KEY:\n");
-        print_hex ((u_char*)psw_key, 1 + password_length +9+ 16);
-    }
-    
-    md5 = get_md5_digest(psw_key, 1 + password_length+9 + 16);
-    
-    memset (eap_response_md5ch + 14 + 5, id, 1);
-    memcpy (eap_response_md5ch + 14 + 10, md5, 16);
-    
-    free (psw_key);
 }
 
 void init_info()
@@ -686,16 +218,6 @@ signal_interrupted (int signo)
     }
 //    exit (EXIT_FAILURE);
 }
-void keep_alive()
-{
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [NSThread sleepForTimeInterval:KEEP_ALIVE_TIME];
-        if (state == ONLINE) {
-            send_eap_packet (EAP_RESPONSE_IDENTITY_KEEP_ALIVE);
-            keep_alive();
-        }
-    });
-}
 
 void
 flock_reg ()
@@ -785,11 +307,7 @@ program_running_check()
     dev=NULL;
     init_info();
     init_device();
-    init_frames ();
-//    signal (SIGINT, signal_interrupted);
-//    signal (SIGTERM, signal_interrupted);
-//    signal (SIGALRM, keep_alive);
-//    alarm(KEEP_ALIVE_TIME);
+    initialize(username, password, mac, handle);
 }
 
 
@@ -802,14 +320,6 @@ program_running_check()
         if (!handle) {
             [self initEnvironment];
         }
-//        printf("######## Lenovo Client ver. %s #########\n", LENOVO_VER);
-//        printf("Device:     %s\n", dev_if_name);
-//        printf("MAC:        %02x:%02x:%02x:%02x:%02x:%02x\n",
-//               local_mac[0],local_mac[1],local_mac[2],
-//               local_mac[3],local_mac[4],local_mac[5]);
-//        printf("IP:         %s\n", inet_ntoa(*(struct in_addr*)&local_ip));
-//        printf("########################################\n");
-//        send_eap_packet (EAPOL_LOGOFF);
         send_eap_packet (EAPOL_START);
         pcap_loop (handle, -1, get_packet, NULL);   /* main loop */
         NSLog(@">>>>>>>pcap_loop--");
