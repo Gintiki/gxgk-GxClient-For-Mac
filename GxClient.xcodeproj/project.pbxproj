@@ -16,6 +16,8 @@
 		47206313173CC9AF00A8B4AF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47206312173CC9AF00A8B4AF /* Security.framework */; };
 		47206319173CD40E00A8B4AF /* LevoClient.app in Resources */ = {isa = PBXBuildFile; fileRef = 47206318173CD40E00A8B4AF /* LevoClient.app */; };
 		47CBE6C4173CE35E00C063C9 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 47CBE6C3173CE35E00C063C9 /* icon.icns */; };
+		C1036C2D1C8B4AA100BEF123 /* libpcap.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C1036C2C1C8B4AA100BEF123 /* libpcap.tbd */; };
+		C1036C2F1C8B4B0000BEF123 /* libpcap.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C1036C2E1C8B4B0000BEF123 /* libpcap.A.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +57,8 @@
 		47CBE6C3173CE35E00C063C9 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = icon.icns; path = ../icon.icns; sourceTree = "<group>"; };
 		47EC4222174369F9006062BE /* STPrivilegedTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPrivilegedTask.h; sourceTree = "<group>"; };
 		47EC4223174369F9006062BE /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
+		C1036C2C1C8B4AA100BEF123 /* libpcap.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.tbd; path = usr/lib/libpcap.tbd; sourceTree = SDKROOT; };
+		C1036C2E1C8B4B0000BEF123 /* libpcap.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.A.tbd; path = usr/lib/libpcap.A.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1036C2F1C8B4B0000BEF123 /* libpcap.A.tbd in Frameworks */,
+				C1036C2D1C8B4AA100BEF123 /* libpcap.tbd in Frameworks */,
 				47206313173CC9AF00A8B4AF /* Security.framework in Frameworks */,
 				472062C0173CC81400A8B4AF /* Cocoa.framework in Frameworks */,
 			);
@@ -91,6 +97,8 @@
 		472062BE173CC81400A8B4AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C1036C2E1C8B4B0000BEF123 /* libpcap.A.tbd */,
+				C1036C2C1C8B4AA100BEF123 /* libpcap.tbd */,
 				47206312173CC9AF00A8B4AF /* Security.framework */,
 				472062BF173CC81400A8B4AF /* Cocoa.framework */,
 				472062C1173CC81400A8B4AF /* Other Frameworks */,
