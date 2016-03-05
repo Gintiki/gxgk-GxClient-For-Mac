@@ -1,4 +1,3 @@
-#pragma once
 #ifndef    __Packet_H__
 #define  __Packet_H__
 
@@ -84,15 +83,13 @@ enum  EAP_STATUS {
 		unsigned char key[16];//Key
 	};
 #pragma pack()
-	unsigned char buf[PKT_SIZE], src_addr[6], des_addr[6] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x03 };
+	unsigned char buf[PKT_SIZE], des_addr[6] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x03 };
 	struct ETH *eth = (struct ETH *)buf;
 	struct EAPOL *eapol = (struct EAPOL *)(buf + sizeof(struct ETH));
 	struct EAP *eap = (struct EAP *)(buf + sizeof(struct ETH) + sizeof(struct EAPOL));
 	unsigned char *last = (unsigned char *)(buf + sizeof(struct ETH) + sizeof(struct EAPOL) + sizeof(struct EAP));
 	struct EAP_Key *key = (struct EAP_Key *)(buf + sizeof(struct ETH) + sizeof(struct EAPOL));
 	struct EAP_Md5 *md5 = (struct EAP_Md5 *)(buf + sizeof(struct ETH) + sizeof(struct EAPOL) + sizeof(struct EAP));
-	char    *username = NULL;
-	char    *password = NULL;
 	pcap_t *adapterHandle;//Íø¿¨¾ä±ú
 
 	int status;
@@ -105,7 +102,7 @@ enum  EAP_STATUS {
 	int eap_md5();
 	int eapol_key_rc4();
 	int get_netlink_status();
-	int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_char *packet);
+	void get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_char *packet);
 	void initialize(char *username_r, char *password_r, unsigned char *mac, pcap_t *Handle);
 
 #endif

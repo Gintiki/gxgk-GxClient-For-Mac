@@ -33,8 +33,8 @@
 		47A6A2BE173F8DD1006E79FE /* NetSpeedInfView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47A6A2BD173F8DD1006E79FE /* NetSpeedInfView.m */; };
 		47CBE6C7173CE44700C063C9 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 47CBE6C6173CE44700C063C9 /* icon.png */; };
 		47E63C83173D524000B37DCE /* PreferencesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 47E63C82173D524000B37DCE /* PreferencesModel.m */; };
-		C1036C241C8B33A600BEF123 /* Packet.c in Sources */ = {isa = PBXBuildFile; fileRef = C1036C231C8B33A600BEF123 /* Packet.c */; };
 		C1036C271C8B33B100BEF123 /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = C1036C261C8B33B100BEF123 /* rc4.c */; };
+		C1036C311C8B4D4B00BEF123 /* libpcap.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C1036C301C8B4D4B00BEF123 /* libpcap.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,9 +82,9 @@
 		47E63C81173D524000B37DCE /* PreferencesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesModel.h; sourceTree = "<group>"; };
 		47E63C82173D524000B37DCE /* PreferencesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesModel.m; sourceTree = "<group>"; };
 		C1036C221C8B33A000BEF123 /* rc4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rc4.h; sourceTree = "<group>"; };
-		C1036C231C8B33A600BEF123 /* Packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Packet.c; sourceTree = "<group>"; };
-		C1036C251C8B33AC00BEF123 /* Packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Packet.h; sourceTree = "<group>"; };
+		C1036C251C8B33AC00BEF123 /* Packet.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Packet.h; sourceTree = "<group>"; };
 		C1036C261C8B33B100BEF123 /* rc4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rc4.c; sourceTree = "<group>"; };
+		C1036C301C8B4D4B00BEF123 /* libpcap.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.tbd; path = usr/lib/libpcap.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1036C311C8B4D4B00BEF123 /* libpcap.tbd in Frameworks */,
 				472062EC173CC8F600A8B4AF /* Cocoa.framework in Frameworks */,
 				479D5855173CD7DE00157DB1 /* libpcap.dylib in Frameworks */,
 				479D5856173CD7DE00157DB1 /* libiconv.dylib in Frameworks */,
@@ -121,6 +122,7 @@
 		472062EA173CC8F600A8B4AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C1036C301C8B4D4B00BEF123 /* libpcap.tbd */,
 				479D5853173CD7DE00157DB1 /* libpcap.dylib */,
 				479D5854173CD7DE00157DB1 /* libiconv.dylib */,
 				472062EB173CC8F600A8B4AF /* Cocoa.framework */,
@@ -172,7 +174,6 @@
 			children = (
 				C1036C261C8B33B100BEF123 /* rc4.c */,
 				C1036C251C8B33AC00BEF123 /* Packet.h */,
-				C1036C231C8B33A600BEF123 /* Packet.c */,
 				C1036C221C8B33A000BEF123 /* rc4.h */,
 				47A1DD33173D18640012F4C7 /* NSView+Additions.h */,
 				47A1DD34173D18640012F4C7 /* NSView+Additions.m */,
@@ -302,7 +303,6 @@
 				475BD83B173D4E280028EFD1 /* PreferencesWindowController.m in Sources */,
 				47E63C83173D524000B37DCE /* PreferencesModel.m in Sources */,
 				47A6A2B8173F8CE4006E79FE /* DeviceInfoView.m in Sources */,
-				C1036C241C8B33A600BEF123 /* Packet.c in Sources */,
 				47A6A2BE173F8DD1006E79FE /* NetSpeedInfView.m in Sources */,
 				472ADC9517400F2E005F0529 /* LogView.m in Sources */,
 			);

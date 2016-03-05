@@ -1,7 +1,6 @@
-#include "stdafx.h"
-#include "BaseFuntion.h"
+#include "rc4.h"
 
-BASEFUNTION_API void rc4_crypt(unsigned char *data, int data_len, unsigned char *key, int key_len)
+void rc4_crypt(unsigned char *data, int data_len, unsigned char *key, int key_len)
 {
 	int i, j, k, x, y;
 	unsigned char a, b, s[256];

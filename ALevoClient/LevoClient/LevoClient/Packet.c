@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
 #include "Packet.h"
 #include "rc4.h"
 #include "md5.h"
 #include <errno.h>
 
+extern void log_i(char *str);
+extern void log_e(char *str,char *i);
 extern char errbuf[PCAP_ERRBUF_SIZE];
 
 int send_eth(unsigned short int proto, unsigned short int len) {
@@ -13,8 +15,9 @@ int send_eth(unsigned short int proto, unsigned short int len) {
 	memcpy(eth->dest, des_addr, 6);
 	memcpy(eth->source, src_addr, 6);
 	eth->proto = htons(proto);
-	if (t=pcap_sendpacket(adapterHandle, buf, t) != 0) {
-		log_e("send: %s\n", pcap_geterr(adapterHandle));
+    t=pcap_sendpacket(adapterHandle, buf, t);
+    if (t != 0) {
+        log_e("send:", pcap_geterr(adapterHandle));
 	}
 	return(t);
 }
@@ -136,13 +139,13 @@ int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_ch
 						eap_identity();
 						break;
 					case EAP_TYPE_NOTIFICATION:
-						log_w("EAP Request Notification :%s", last);
+						log_e("EAP Request Notification :", last);
 						break;
 					case EAP_TYPE_MD5:
 						eap_md5();
 						break;
 					default:
-						log_w("Unknow eap type: %d", eap->type);
+						log_e("Unknow eap type:", eap->type);
 						break;
 					}
 					break;
@@ -154,10 +157,10 @@ int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_ch
 					status = ZTE_FAILURE;
 					last[last[0] + 1] = '\0';
 					log_i("EAP Failure");
-					log_w("%s", last + 1);
+					log_e("", last + 1);
 					break;
 				default:
-					log_w("Unknow eapol type: %d", eap->code);
+					log_e("Unknow eapol type:", eap->code);
 					break;
 				}
 				break;
@@ -168,12 +171,12 @@ int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_ch
 					eapol_key_rc4();
 					break;
 				default:
-					log_w("Unknow key type: %d", eap->code);
+					log_e("Unknow key type:", eap->code);
 					break;
 				}
 				break;
 			default:
-				log_w("Unknow packet type: %d", eapol->type);
+				log_e("Unknow packet type:", eapol->type);
 				break;
 			}
 		}
@@ -191,7 +194,7 @@ int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_ch
 		else if (t == 0) {
 			status = EAP_FAILURE;
 			if (tag > 0) {
-				log_w("Waiting for link...");
+				log_e("Waiting for link...","");
 				tag = 0;
 			}
 		}
@@ -200,12 +203,12 @@ int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_ch
 }
 void initialize(char *username_r, char *password_r, unsigned char *mac, pcap_t *Handle)
 {
-	des_addr[0] = { 0x01 };
-	des_addr[1] = { 0x80 };
-	des_addr[2] = { 0xc2 };
-	des_addr[3] = { 0x00 };
-	des_addr[4] = { 0x00 };
-	des_addr[5] = { 0x03 };
+	des_addr[0] =  0x01 ;
+	des_addr[1] =  0x80 ;
+	des_addr[2] =  0xc2 ;
+	des_addr[3] =  0x00 ;
+	des_addr[4] =  0x00 ;
+	des_addr[5] =  0x03 ;
 
 	strncpy((char *)src_addr, (char *)mac, 6);
 	adapterHandle = Handle;

@@ -1,6 +1,8 @@
 #ifndef md5_INCLUDED
 #define md5_INCLUDED
 
+#include <stdint.h>//
+
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;
 
@@ -11,8 +13,8 @@ typedef unsigned short int UINT2;
 typedef unsigned long int UINT4;
 
 typedef struct {
-    UINT4 state[4];                                   /* state (ABCD) */
-    UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
+    uint32_t state[4];                                   /* state (ABCD) */
+    uint32_t count[2];        /* number of bits, modulo 2^64 (lsb first) */
     unsigned char buffer[64];                         /* input buffer */
 } MD5_CTX;
 
