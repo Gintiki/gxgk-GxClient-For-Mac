@@ -1,7 +1,8 @@
 /* MD5.H - header file for MD5C.C
 */
-#include "stdafx.h"
-#include "BaseFuntion.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "md5.h"
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 rights reserved.
 
@@ -26,7 +27,6 @@ documentation and/or software.
 /* MD5 context. */
 
 /* POINTER defines a generic pointer type */
-typedef unsigned char *POINTER;
 
 /* MD5C.C - RSA Data Security, Inc., MD5 message-digest algorithm
 */
@@ -123,7 +123,7 @@ Rotation is separate from addition to prevent recomputation.
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
 */
-BASEFUNTION_API void MD5Init(MD5_CTX * context)
+void MD5Init(MD5_CTX * context)
 
 {
 	context->count[0] = context->count[1] = 0;
@@ -139,7 +139,7 @@ BASEFUNTION_API void MD5Init(MD5_CTX * context)
 operation, processing another message block, and updating the
 context.
 */
-BASEFUNTION_API void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
+void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
 
 {
 	unsigned int i, index, partLen;
@@ -179,7 +179,7 @@ BASEFUNTION_API void MD5Update(MD5_CTX *context, unsigned char *input, unsigned 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
 the message digest and zeroizing the context.
 */
-BASEFUNTION_API void MD5Final(unsigned char digest[16], MD5_CTX *context)
+void MD5Final(unsigned char digest[16], MD5_CTX *context)
 {
 	unsigned char bits[8];
 	unsigned int index, padLen;
@@ -351,7 +351,7 @@ static void MD5_memset(POINTER output, int value, unsigned int len)
 
 
 
-BASEFUNTION_API void hmac_md5(unsigned char* text, int text_len, unsigned char* key, int key_len, unsigned char* outPut)
+void hmac_md5(unsigned char* text, int text_len, unsigned char* key, int key_len, unsigned char* outPut)
 {
 
 	MD5_CTX context;

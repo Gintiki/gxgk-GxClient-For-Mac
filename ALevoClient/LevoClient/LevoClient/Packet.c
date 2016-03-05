@@ -1,6 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
 #include "Packet.h"
 #include "rc4.h"
 #include "md5.h"
+#include <errno.h>
+
+extern char errbuf[PCAP_ERRBUF_SIZE];
 
 int send_eth(unsigned short int proto, unsigned short int len) {
 	int t = sizeof(struct ETH) + len;

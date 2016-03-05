@@ -12,6 +12,17 @@
 #define salt "zte142052"
 #define ETH_P_PAE 0x888e
 
+enum  EAP_STATUS {
+    ZTE_START = 1,
+    ZTE_LOGNIG = 2,
+    ZTE_LOGOFF = 3,
+    ZTE_SUCCESS = 4,
+    ZTE_FAILURE = 5,
+    ZTE_KEEP = 6,
+    ZTE_DHCPING = 7,
+    ZTE_DHCPED = 8,
+};
+
 	enum EAP_Packet {
 		EAPOL_EAPPACKET = 0,//认证包标志
 		EAPOL_START = 1,
@@ -96,3 +107,5 @@
 	int get_netlink_status();
 	int get_packet(u_char *args, const struct pcap_pkthdr *pcaket_header, const u_char *packet);
 	void initialize(char *username_r, char *password_r, unsigned char *mac, pcap_t *Handle);
+
+#endif

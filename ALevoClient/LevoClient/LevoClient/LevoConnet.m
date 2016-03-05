@@ -44,7 +44,7 @@
 #import <fcntl.h>
 #import <assert.h>
 
-#import <Packet.h>
+#import "Packet.h"
 
 int bsd_get_mac(const char ifname[], uint8_t eth_addr[]);
 
@@ -66,8 +66,24 @@ PreferencesModel *config;
 void(^ConnetSucessBlock)(void);
 void(^ConnetFailBlock)(void);
 
+struct follow {
+    uint32_t	inBytes;	//进包
+    uint32_t 	outBytes;	//出包
+    struct timeval time ;
+};
+
 //网卡指针
 pcap_t *handle = NULL;
+int lockfile;
+char errbuf[PCAP_ERRBUF_SIZE];
+char *dev = NULL;   /* 连接的设备名 */
+char dev_if_name[64];
+int         exit_flag = 0;
+
+int         username_length;
+int         password_length;
+u_int       local_ip = 0;
+u_char      local_mac[ETHER_ADDR_LEN]; /* MAC地址 */
 
 @implementation LevoConnet
 
@@ -88,7 +104,6 @@ void init_info()
         fprintf (stderr,"Error: NO Username or Password promoted.\n"
                  "Try zlevoclient --help for usage.\n");
         [[PreferencesModel sharedInstance] pushErrorLog:@"Error :用户名或密码读取错误"];
-//        exit(EXIT_FAILURE);
     }
     username_length = (int)strlen(username);
     password_length = (int)strlen(password);
@@ -210,7 +225,7 @@ static void
 signal_interrupted (int signo)
 {
     fprintf(stdout,"\n&&Info: USER Interrupted. \n");
-    send_eap_packet(EAPOL_LOGOFF);
+    eapol_logoff();
     if (handle) {
         pcap_breakloop (handle);
         pcap_close (handle);
@@ -307,7 +322,7 @@ program_running_check()
     dev=NULL;
     init_info();
     init_device();
-    initialize(username, password, mac, handle);
+    initialize(username, password, local_mac, handle);
 }
 
 
@@ -320,7 +335,7 @@ program_running_check()
         if (!handle) {
             [self initEnvironment];
         }
-        send_eap_packet (EAPOL_START);
+        eapol_start();
         pcap_loop (handle, -1, get_packet, NULL);   /* main loop */
         NSLog(@">>>>>>>pcap_loop--");
 //        pcap_close (handle);
@@ -340,7 +355,6 @@ program_running_check()
         pcap_breakloop(handle);
         NSLog(@">>>>>>>pcap_breakloop");
     }
-    state = READY;
 }
 
 - (void)cancleWithcloseHandle

@@ -33,6 +33,8 @@
 		47A6A2BE173F8DD1006E79FE /* NetSpeedInfView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47A6A2BD173F8DD1006E79FE /* NetSpeedInfView.m */; };
 		47CBE6C7173CE44700C063C9 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 47CBE6C6173CE44700C063C9 /* icon.png */; };
 		47E63C83173D524000B37DCE /* PreferencesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 47E63C82173D524000B37DCE /* PreferencesModel.m */; };
+		C1036C241C8B33A600BEF123 /* Packet.c in Sources */ = {isa = PBXBuildFile; fileRef = C1036C231C8B33A600BEF123 /* Packet.c */; };
+		C1036C271C8B33B100BEF123 /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = C1036C261C8B33B100BEF123 /* rc4.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +81,10 @@
 		47CBE6C6173CE44700C063C9 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		47E63C81173D524000B37DCE /* PreferencesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesModel.h; sourceTree = "<group>"; };
 		47E63C82173D524000B37DCE /* PreferencesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesModel.m; sourceTree = "<group>"; };
+		C1036C221C8B33A000BEF123 /* rc4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rc4.h; sourceTree = "<group>"; };
+		C1036C231C8B33A600BEF123 /* Packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Packet.c; sourceTree = "<group>"; };
+		C1036C251C8B33AC00BEF123 /* Packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Packet.h; sourceTree = "<group>"; };
+		C1036C261C8B33B100BEF123 /* rc4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rc4.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +170,10 @@
 		479D585A173CD88C00157DB1 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				C1036C261C8B33B100BEF123 /* rc4.c */,
+				C1036C251C8B33AC00BEF123 /* Packet.h */,
+				C1036C231C8B33A600BEF123 /* Packet.c */,
+				C1036C221C8B33A000BEF123 /* rc4.h */,
 				47A1DD33173D18640012F4C7 /* NSView+Additions.h */,
 				47A1DD34173D18640012F4C7 /* NSView+Additions.m */,
 				47A1DD30173D184D0012F4C7 /* NSObject+Utils.h */,
@@ -286,11 +296,13 @@
 				472062FF173CC8F600A8B4AF /* AppDelegate.m in Sources */,
 				479D5852173CD7D100157DB1 /* LevoConnet.m in Sources */,
 				479D5859173CD85E00157DB1 /* md5.c in Sources */,
+				C1036C271C8B33B100BEF123 /* rc4.c in Sources */,
 				47A1DD32173D184D0012F4C7 /* NSObject+Utils.m in Sources */,
 				47A1DD35173D18640012F4C7 /* NSView+Additions.m in Sources */,
 				475BD83B173D4E280028EFD1 /* PreferencesWindowController.m in Sources */,
 				47E63C83173D524000B37DCE /* PreferencesModel.m in Sources */,
 				47A6A2B8173F8CE4006E79FE /* DeviceInfoView.m in Sources */,
+				C1036C241C8B33A600BEF123 /* Packet.c in Sources */,
 				47A6A2BE173F8DD1006E79FE /* NetSpeedInfView.m in Sources */,
 				472ADC9517400F2E005F0529 /* LogView.m in Sources */,
 			);
